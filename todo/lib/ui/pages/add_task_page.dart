@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
 import 'package:intl/intl.dart';
 import 'package:todo/controllers/task_controller.dart';
 import 'package:todo/ui/theme.dart';
@@ -225,39 +224,36 @@ class _AddTaskPageState extends State<AddTaskPage> {
     );
   }
 
-  _validateData() {
-    if (_titleController.text.isNotEmpty &&
-        _noteController.text.isNotEmpty &&
-        isValidTimeRange(_startTime, _endTime)) {
-      _addTasksToDb();
-      Get.back();
-    } else if (_titleController.text.isEmpty) {
-      Get.snackbar('required', 'Title is required!',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.white,
-          colorText: pinkClr,
-          icon: const Icon(
-            Icons.warning_amber_rounded,
-            color: Colors.red,
-          ));
-    } else if (_noteController.text.isEmpty &&
-        isValidTimeRange(_startTime, _endTime)) {
-      _noteController.text.val('');
-      _addTasksToDb();
-      Get.back();
-    } else if (!isValidTimeRange(_startTime, _endTime)) {
-      Get.snackbar('required', 'Correct time range is required!',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.white,
-          colorText: pinkClr,
-          icon: const Icon(
-            Icons.warning_amber_rounded,
-            color: Colors.red,
-          ));
-    } else {
-      print(
-          '############################ SOMETHING WRONG HAPPENED #############################');
+  void _validateData() async {
+    if (_titleController.text.isEmpty) {
+      _showError('Title is required!');
+      return;
     }
+
+    if (_noteController.text.isEmpty) {
+      _noteController.text = '';
+    }
+
+    if (!isValidTimeRange(_startTime, _endTime)) {
+      _showError('Correct time range is required!');
+      return;
+    }
+
+    await _addTasksToDb();
+    await _taskController.syncFromGoogleCalendar();
+
+    Get.back();
+  }
+
+  void _showError(String message) {
+    Get.snackbar(
+      'Required',
+      message,
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.white,
+      colorText: pinkClr,
+      icon: const Icon(Icons.warning_amber_rounded, color: Colors.red),
+    );
   }
 
   bool isValidTimeRange(String startTime_, String endTime_) {

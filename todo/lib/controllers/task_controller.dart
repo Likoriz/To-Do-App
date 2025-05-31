@@ -29,28 +29,6 @@ class TaskController extends GetxController {
         allTasksList.where((task) => task.date == dateString).toList());
   }
 
-  // void filterTasksByDate(DateTime selectedDate) {
-  //   final dateString = DateFormat('yyyy-MM-dd').format(selectedDate);
-
-  //   taskList.assignAll(allTasksList.where((task) {
-  //     if (task.date == dateString) return true;
-
-  //     if (task.repeat == 'Daily') return true;
-
-  //     if (task.repeat == 'Weekly') {
-  //       final taskDate = DateTime.parse(task.date!);
-  //       return taskDate.weekday == selectedDate.weekday;
-  //     }
-
-  //     if (task.repeat == 'Monthly') {
-  //       final taskDate = DateTime.parse(task.date!);
-  //       return taskDate.day == selectedDate.day;
-  //     }
-
-  //     return false;
-  //   }).toList());
-  // }
-
   Future<void> deleteTasks(Task task) async {
     await calendarHelper.delete(task);
 

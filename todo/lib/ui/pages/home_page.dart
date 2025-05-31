@@ -87,6 +87,7 @@ class _HomePageState extends State<HomePage> {
             //notifyHelper.cancelAllNotifications();
             await _taskController.deleteTasksByDate();
             setState(() {
+              _taskController.syncFromGoogleCalendar();
               _taskController.filterTasksByDate(_selectedDate);
             });
           },
@@ -94,8 +95,8 @@ class _HomePageState extends State<HomePage> {
         IconButton(
           icon: Icon(Icons.refresh_outlined,
               size: 24, color: Get.isDarkMode ? Colors.white : darkGreyClr),
-          onPressed: () {
-            _taskController.syncFromGoogleCalendar().then((_) {
+          onPressed: () async {
+            await _taskController.syncFromGoogleCalendar().then((_) {
               setState(() {
                 _taskController.filterTasksByDate(_selectedDate);
               });
@@ -140,7 +141,6 @@ class _HomePageState extends State<HomePage> {
                 await _taskController.syncFromGoogleCalendar();
                 setState(() {
                   _taskController.filterTasksByDate(_selectedDate);
-                  _showTasks();
                 });
               }),
         ],
@@ -187,7 +187,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _onRefresh() async {
-    //await _taskController.getTasks();
     await _taskController.syncFromGoogleCalendar();
     _taskController.filterTasksByDate(_selectedDate);
   }
@@ -327,17 +326,6 @@ class _HomePageState extends State<HomePage> {
         color: Get.isDarkMode ? darkHeaderClr : Colors.white,
         child: Column(
           children: [
-            // Flexible(
-            //   child: Container(
-            //     decoration: BoxDecoration(
-            //       borderRadius: BorderRadius.circular(10),
-            //       color: Get.isDarkMode ? Colors.grey[600] : Colors.grey[300],
-            //     ),
-            //   ),
-            // ),
-            // const SizedBox(
-            //   height: 20,
-            // ),
             task.isCompleted == 1
                 ? Container()
                 : _buildBottomSheet(
@@ -354,6 +342,7 @@ class _HomePageState extends State<HomePage> {
                 onTap: () async {
                   //NotifyHelper().cancelNotification(task);
                   await _taskController.deleteTasks(task);
+                  await _taskController.syncFromGoogleCalendar();
                   setState(() {
                     _taskController.filterTasksByDate(_selectedDate);
                   });
@@ -367,9 +356,6 @@ class _HomePageState extends State<HomePage> {
                   Get.back();
                 },
                 clr: primaryClr),
-            // const SizedBox(
-            //   height: 5,
-            // ),
           ],
         ),
       ),
