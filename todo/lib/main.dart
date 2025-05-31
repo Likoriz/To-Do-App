@@ -7,7 +7,6 @@ import 'package:todo/ui/pages/auth_gate.dart';
 import 'package:todo/ui/theme.dart';
 
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
-//import 'package:googleapis/calendar/v3.dart' as calendar;
 
 import 'db/db_helper.dart';
 
@@ -17,10 +16,10 @@ import 'db/db_helper.dart';
 //       (throw Exception('CLIENT_ID not found in .env'));
 //   String clientSecret = dotenv.env['CLIENT_SECRET'] ??
 //       (throw Exception('CLIENT_SECRET not found in .env'));
-
+//
 //   final client = ClientId(clientId, clientSecret);
 //   const scopes = [calendar.CalendarApi.calendarScope];
-
+//
 //   return await clientViaUserConsent(client, scopes, (url) {
 //     print('Перейдите по ссылке: $url');
 //   });
@@ -53,7 +52,7 @@ class MyApp extends StatelessWidget {
       darkTheme: Themes.dark,
       themeMode: ThemeServices().theme,
       debugShowCheckedModeBanner: false,
-      home: const AuthGate(), // Новый стартовый экран
+      home: const AuthGate(),
     );
   }
 }
