@@ -88,4 +88,10 @@ class TaskController extends GetxController {
 
     await getTasks();
   }
+
+  Future<void> updateTask(Task task) async {
+    // if (task.recurringEventId == null) {
+    //   await DBHelper.update(task.id!.toInt());
+    // }
+  }
 }

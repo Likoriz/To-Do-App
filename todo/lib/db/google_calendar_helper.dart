@@ -8,14 +8,6 @@ class GoogleCalendarHelper {
 
   GoogleCalendarHelper(this._api, this.calendarId);
 
-  // Future<List<Task>> getTasks() async {
-  //   final events = await _api.events.list(calendarId.trim());
-  //   return events.items!
-  //       .where((e) => e.status != 'cancelled')
-  //       .map((e) => Task.fromGoogleEvent(e))
-  //       .toList();
-  // }
-
   Future<List<Task>> getTasks() async {
     final events = await _api.events.list(calendarId.trim());
     final List<Task> allTasks = [];
@@ -29,7 +21,7 @@ class GoogleCalendarHelper {
         final instances = await _api.events.instances(
           calendarId.trim(),
           event.id!,
-          timeMin: DateTime.now().toUtc(),
+          timeMin: DateTime.now().subtract(const Duration(days: 1)).toUtc(),
           timeMax: DateTime.now().add(const Duration(days: 60)).toUtc(),
         );
 

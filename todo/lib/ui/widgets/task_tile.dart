@@ -31,14 +31,31 @@ class TaskTile extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      task.title!,
-                      style: GoogleFonts.lato(
-                          textStyle: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      )),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            task.title!,
+                            overflow: TextOverflow.ellipsis,
+                            style: GoogleFonts.lato(
+                              textStyle: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () {
+                            print('Редактировать задачу: ${task.title}');
+                          },
+                          icon: const Icon(Icons.edit,
+                              color: Colors.white, size: 20),
+                          tooltip: 'Edit',
+                        ),
+                      ],
                     ),
                     const SizedBox(
                       height: 12,
