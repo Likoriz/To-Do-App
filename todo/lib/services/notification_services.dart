@@ -8,6 +8,7 @@ import 'package:timezone/data/latest.dart' as tz;
 import '/models/task.dart';
 import '/ui/pages/notification_screen.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
+import 'dart:io';
 
 class NotifyHelper {
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
@@ -165,8 +166,16 @@ class NotifyHelper {
 
   Future<void> _configureLocalTimeZone() async {
     tz.initializeTimeZones();
-    final String timeZoneName = await FlutterTimezone.getLocalTimezone();
-    tz.setLocalLocation(tz.getLocation(timeZoneName));
+
+    final timeZoneName;
+
+    if (Platform.isAndroid) {
+      timeZoneName = await FlutterTimezone.getLocalTimezone();
+      tz.setLocalLocation(tz.getLocation(timeZoneName));
+    } else if (Platform.isWindows) {
+      timeZoneName = tz.getLocation('America/Detroit');
+      tz.setLocalLocation(timeZoneName);
+    }
   }
 
 /*   Future selectNotification(String? payload) async {

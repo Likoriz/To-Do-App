@@ -67,14 +67,36 @@ class TaskTile extends StatelessWidget {
                     const SizedBox(
                       height: 12,
                     ),
-                    Text(
-                      task.note!,
-                      style: GoogleFonts.lato(
-                          textStyle: TextStyle(
-                        color: Colors.grey[100],
-                        fontSize: 15,
-                      )),
-                    ),
+                    task.note != null && task.note != ''
+                        ? Text(
+                            task.note!,
+                            style: GoogleFonts.lato(
+                                textStyle: TextStyle(
+                              color: Colors.grey[100],
+                              fontSize: 15,
+                            )),
+                          )
+                        : Text('No description',
+                            style: GoogleFonts.lato(
+                                textStyle: TextStyle(
+                              color: Colors.grey[100],
+                              fontSize: 15,
+                            ))),
+                    task.repeat != null
+                        ? Text(
+                            task.repeat!,
+                            style: GoogleFonts.lato(
+                                textStyle: TextStyle(
+                              color: Colors.grey[100],
+                              fontSize: 15,
+                            )),
+                          )
+                        : Text('No repeat',
+                            style: GoogleFonts.lato(
+                                textStyle: TextStyle(
+                              color: Colors.grey[100],
+                              fontSize: 15,
+                            ))),
                   ],
                 ),
               ),
@@ -83,7 +105,7 @@ class TaskTile extends StatelessWidget {
               margin: const EdgeInsets.symmetric(horizontal: 10),
               height: 60,
               width: 0.5,
-              color: Colors.grey[200]!.withOpacity(0.7),
+              color: Colors.grey[200]!.withAlpha(179),
             ),
             RotatedBox(
               quarterTurns: 3,

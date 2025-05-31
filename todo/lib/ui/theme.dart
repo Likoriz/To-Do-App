@@ -14,14 +14,14 @@ class Themes {
   static final light = ThemeData(
     primaryColor: primaryClr,
     // ignore: deprecated_member_use
-    backgroundColor: Colors.white,
+    scaffoldBackgroundColor: Colors.white,
     brightness: Brightness.light,
   );
 
   static final dark = ThemeData(
     primaryColor: darkGreyClr,
     // ignore: deprecated_member_use
-    backgroundColor: darkGreyClr,
+    scaffoldBackgroundColor: darkGreyClr,
     brightness: Brightness.dark,
   );
 }

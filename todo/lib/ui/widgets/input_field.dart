@@ -56,12 +56,12 @@ class InputField extends StatelessWidget {
                     enabledBorder: UnderlineInputBorder(
                         borderSide: BorderSide(
                       // ignore: deprecated_member_use
-                      color: context.theme.backgroundColor,
+                      color: context.theme.colorScheme.background,
                     )),
                     focusedBorder: UnderlineInputBorder(
                         borderSide: BorderSide(
                       // ignore: deprecated_member_use
-                      color: context.theme.backgroundColor,
+                      color: context.theme.colorScheme.background,
                       width: 0,
                     )),
                   ),

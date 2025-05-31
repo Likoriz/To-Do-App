@@ -26,6 +26,7 @@ class DBHelper {
             'startTime STRING, endTime STRING, '
             'remind INTEGER, repeat STRING, '
             'color INTEGER, '
+            'eventId TEXT, '
             'isCompleted INTEGER)');
       });
       print('DB Created');
@@ -35,17 +36,18 @@ class DBHelper {
   }
 
   static Future<int> insert(Task? task) async {
-    print('insert function called');
+    print('INSERT FUNC FROM DB HELPER');
     try {
+      //print(task!.toJson());
       return await _db!.insert(_tableName, task!.toJson());
     } catch (e) {
-      print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
+      print('ERROR WHILE INSERTING INTO DB: $e');
       return 9000;
     }
   }
 
   static Future<int> delete(Task task) async {
-    print('insert');
+    print('DELETE FUNC FROM DBHELPER');
     return await _db!.delete(
       _tableName,
       where: 'id = ?',
@@ -54,18 +56,17 @@ class DBHelper {
   }
 
   static Future<int> deleteAll() async {
-    print('insert');
+    print('DELETEALL FUNC FROM DBHELPER');
     return await _db!.delete(_tableName);
   }
 
   static Future<List<Map<String, dynamic>>> query() async {
-    print('Query Called!!!!!!!!!!!!!!!!!!!');
-    print('insert');
+    print('QUERY FUNC FROM DBHELPER');
     return await _db!.query(_tableName);
   }
 
   static Future<int> update(int id) async {
-    print('insert');
+    print('UPDATE FUNC FROM DBHELPER');
     return await _db!.rawUpdate('''
     UPDATE tasks
     SET isCompleted = ?

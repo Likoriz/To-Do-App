@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:intl/intl.dart';
 import 'package:todo/controllers/task_controller.dart';
 import 'package:todo/ui/theme.dart';
@@ -15,14 +16,14 @@ class AddTaskPage extends StatefulWidget {
 }
 
 class _AddTaskPageState extends State<AddTaskPage> {
-  final TaskController _taskController = Get.put(TaskController());
+  final TaskController _taskController = Get.find<TaskController>();
 
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _noteController = TextEditingController();
 
   DateTime _selectedDate = DateTime.now();
-  String _startTime = DateFormat('hh:mm a').format(DateTime.now()).toString();
-  String _endTime = DateFormat('hh:mm a')
+  String _startTime = DateFormat('HH:mm').format(DateTime.now()).toString();
+  String _endTime = DateFormat('HH:mm')
       .format(DateTime.now().add(const Duration(minutes: 15)))
       .toString();
 
@@ -37,7 +38,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       // ignore: deprecated_member_use
-      backgroundColor: context.theme.backgroundColor,
+      backgroundColor: context.theme.colorScheme.background,
       appBar: _customAppBar(),
       body: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -210,7 +211,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
       ),
       elevation: 0,
       // ignore: deprecated_member_use
-      backgroundColor: context.theme.backgroundColor,
+      backgroundColor: context.theme.colorScheme.background,
       actions: const [
         CircleAvatar(
           backgroundImage: AssetImage('images/person.jpeg'),
@@ -221,7 +222,6 @@ class _AddTaskPageState extends State<AddTaskPage> {
         ),
       ],
       centerTitle: true,
-
     );
   }
 
@@ -229,9 +229,8 @@ class _AddTaskPageState extends State<AddTaskPage> {
     if (_titleController.text.isNotEmpty && _noteController.text.isNotEmpty) {
       _addTasksToDb();
       Get.back();
-    } else if (_titleController.text.isNotEmpty ||
-        _noteController.text.isNotEmpty) {
-      Get.snackbar('required', 'All fields are required!',
+    } else if (_titleController.text.isEmpty) {
+      Get.snackbar('required', 'Title is required!',
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.white,
           colorText: pinkClr,
@@ -239,6 +238,10 @@ class _AddTaskPageState extends State<AddTaskPage> {
             Icons.warning_amber_rounded,
             color: Colors.red,
           ));
+    } else if (_noteController.text.isEmpty) {
+      _noteController.text.val('');
+      _addTasksToDb();
+      Get.back();
     } else {
       print(
           '############################ SOMETHING WRONG HAPPENED #############################');
@@ -252,7 +255,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
           title: _titleController.text,
           note: _noteController.text,
           isCompleted: 0,
-          date: DateFormat.yMd().format(_selectedDate),
+          date: DateFormat('yyyy-MM-dd').format(_selectedDate),
           startTime: _startTime,
           endTime: _endTime,
           color: _selectedColor,
@@ -261,8 +264,9 @@ class _AddTaskPageState extends State<AddTaskPage> {
         ),
       );
       print('Value: $value');
+      _taskController.getTasks();
     } catch (e) {
-      print('error: $e');
+      print('ERROR WHILE ADDING TASKS TO DB: $e');
     }
   }
 
@@ -287,7 +291,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
                 });
               },
               child: Padding(
-                padding: const EdgeInsets.only(right: 8.0,bottom: 8.0),
+                padding: const EdgeInsets.only(right: 8.0, bottom: 8.0),
                 child: CircleAvatar(
                   backgroundColor: index == 0
                       ? primaryClr
@@ -335,8 +339,12 @@ class _AddTaskPageState extends State<AddTaskPage> {
               DateTime.now().add(const Duration(minutes: 15))),
     );
 
+    String formattedTime;
+
+    isStartTime ? formattedTime = _startTime : formattedTime = _endTime;
+
     // ignore: use_build_context_synchronously
-    String formattedTime = pickedTime!.format(context);
+    if (pickedTime != null) formattedTime = pickedTime.format(context);
 
     if (isStartTime) {
       setState(() => _startTime = formattedTime);

@@ -1,0 +1,59 @@
+import 'package:todo/models/task.dart';
+import 'package:googleapis/calendar/v3.dart' as calendar;
+
+class GoogleCalendarHelper {
+  final calendar.CalendarApi _api;
+
+  String calendarId;
+
+  GoogleCalendarHelper(this._api, this.calendarId);
+
+  // Future<List<Task>> getTasks() async {
+  //   final events = await _api.events.list(calendarId.trim());
+  //   return events.items!
+  //       .where((e) => e.status != 'cancelled')
+  //       .map((e) => Task.fromGoogleEvent(e))
+  //       .toList();
+  // }
+
+  Future<List<Task>> getTasks() async {
+    final events = await _api.events.list(calendarId.trim());
+    final List<Task> allTasks = [];
+
+    for (var event in events.items!) {
+      if (event.status == 'cancelled') continue;
+
+      if (event.recurrence != null &&
+          event.recurrence!.isNotEmpty &&
+          event.id != null) {
+        final instances = await _api.events.instances(
+          calendarId.trim(),
+          event.id!,
+          timeMin: DateTime.now().subtract(const Duration(days: 30)).toUtc(),
+          timeMax: DateTime.now().add(const Duration(days: 90)).toUtc(),
+        );
+
+        for (var instance in instances.items!) {
+          allTasks.add(Task.fromGoogleEvent(instance));
+        }
+      } else {
+        allTasks.add(Task.fromGoogleEvent(event));
+      }
+    }
+
+    return allTasks;
+  }
+
+  Future<void> insert(Task task) async {
+    final event = task.toGoogleEvent();
+
+    await _api.events.insert(event, calendarId);
+  }
+
+  Future<void> delete(Task task) async {
+    if (task.eventId != null)
+      await _api.events.delete(calendarId.trim(), task.eventId!);
+  }
+
+  Future<void> update(int id) async {}
+}

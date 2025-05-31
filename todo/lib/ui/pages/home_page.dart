@@ -31,21 +31,26 @@ class _HomePageState extends State<HomePage> {
     notifyHelper = NotifyHelper();
     notifyHelper.requestIOSPermissions();
     notifyHelper.initializeNotification();
-    _taskController.getTasks();
+    _taskController.getTasks().then((_) {
+      _taskController.filterTasksByDate(_selectedDate);
+    });
   }
 
   DateTime _selectedDate = DateTime.now();
-  final TaskController _taskController = Get.put(TaskController());
+  final TaskController _taskController = Get.find<TaskController>();
 
   @override
   Widget build(BuildContext context) {
     SizeConfig().init(context);
     return Scaffold(
       // ignore: deprecated_member_use
-      backgroundColor: context.theme.backgroundColor,
+      backgroundColor: context.theme.colorScheme.background,
       appBar: _customAppBar(),
       body: Column(
         children: [
+          // Container(
+          //     child: SizedBox(height: 200, width: 200),
+          //     color: Color.fromRGBO(255, 0, 0, 1)),
           _addTaskBar(),
           _addDateBar(),
           const SizedBox(
@@ -73,14 +78,29 @@ class _HomePageState extends State<HomePage> {
       ),
       elevation: 0,
       // ignore: deprecated_member_use
-      backgroundColor: context.theme.backgroundColor,
+      backgroundColor: context.theme.colorScheme.background,
       actions: [
         IconButton(
           icon: Icon(Icons.cleaning_services_outlined,
               size: 24, color: Get.isDarkMode ? Colors.white : darkGreyClr),
+          onPressed: () async {
+            //notifyHelper.cancelAllNotifications();
+            await _taskController.deleteAllTasks();
+            setState(() {
+              _taskController.filterTasksByDate(_selectedDate);
+            });
+          },
+        ),
+        IconButton(
+          icon: Icon(Icons.refresh_outlined,
+              size: 24, color: Get.isDarkMode ? Colors.white : darkGreyClr),
           onPressed: () {
-            notifyHelper.cancelAllNotifications();
-            _taskController.deleteAllTasks();
+            //notifyHelper.cancelAllNotifications();
+            _taskController.syncFromGoogleCalendar().then((_) {
+              setState(() {
+                _taskController.filterTasksByDate(_selectedDate);
+              });
+            });
           },
         ),
         const CircleAvatar(
@@ -118,7 +138,11 @@ class _HomePageState extends State<HomePage> {
               label: '+ Add Task',
               onTap: () async {
                 await Get.to(() => const AddTaskPage());
-                _taskController.getTasks();
+                await _taskController.syncFromGoogleCalendar();
+                setState(() {
+                  _taskController.filterTasksByDate(_selectedDate);
+                  _showTasks();
+                });
               }),
         ],
       ),
@@ -157,13 +181,16 @@ class _HomePageState extends State<HomePage> {
           setState(() {
             _selectedDate = newDate;
           });
+          _taskController.filterTasksByDate(_selectedDate);
         },
       ),
     );
   }
 
   Future<void> _onRefresh() async {
-    _taskController.getTasks();
+    //await _taskController.getTasks();
+    await _taskController.syncFromGoogleCalendar();
+    _taskController.filterTasksByDate(_selectedDate);
   }
 
   _showTasks() {
@@ -185,16 +212,16 @@ class _HomePageState extends State<HomePage> {
                     task.date == DateFormat.yMd().format(_selectedDate) ||
                     (task.repeat == 'Weekly' &&
                         _selectedDate
-                                    .difference(
-                                        DateFormat.yMd().parse(task.date!))
+                                    .difference(DateFormat('yyyy-MM-dd')
+                                        .parse(task.date!))
                                     .inDays %
                                 7 ==
                             0) ||
                     (task.repeat == 'Monthly' &&
-                        DateFormat.yMd().parse(task.date!).day ==
+                        DateFormat('yyyy-MM-dd').parse(task.date!).day ==
                             _selectedDate.day)) {
                   try {
-                  /*   var hour = task.startTime.toString().split(':')[0];
+                    /*   var hour = task.startTime.toString().split(':')[0];
                     var minutes = task.startTime.toString().split(':')[1]; */
                     var date = DateFormat.jm().parse(task.startTime!);
                     var myTime = DateFormat('HH:mm').format(date);
@@ -205,7 +232,7 @@ class _HomePageState extends State<HomePage> {
                       task,
                     );
                   } catch (e) {
-                    print('Error parsing time: $e');
+                    print('(REP PROBLEM) Error parsing time: $e');
                   }
                 } else {
                   Container();
@@ -301,32 +328,36 @@ class _HomePageState extends State<HomePage> {
         color: Get.isDarkMode ? darkHeaderClr : Colors.white,
         child: Column(
           children: [
-            Flexible(
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  color: Get.isDarkMode ? Colors.grey[600] : Colors.grey[300],
-                ),
-              ),
-            ),
-            const SizedBox(
-              height: 20,
-            ),
+            // Flexible(
+            //   child: Container(
+            //     decoration: BoxDecoration(
+            //       borderRadius: BorderRadius.circular(10),
+            //       color: Get.isDarkMode ? Colors.grey[600] : Colors.grey[300],
+            //     ),
+            //   ),
+            // ),
+            // const SizedBox(
+            //   height: 20,
+            // ),
             task.isCompleted == 1
                 ? Container()
                 : _buildBottomSheet(
                     label: 'Task Completed',
-                    onTap: () {
-                      NotifyHelper().cancelNotification(task);
-                      _taskController.markTaskAsCompleted(task.id!);
+                    onTap: () async {
+                      //NotifyHelper().cancelNotification(task);
+                      await _taskController.markTaskAsCompleted(task.id!);
+                      _taskController.filterTasksByDate(_selectedDate);
                       Get.back();
                     },
                     clr: primaryClr),
             _buildBottomSheet(
                 label: 'Delete Task',
-                onTap: () {
-                  NotifyHelper().cancelNotification(task);
-                  _taskController.deleteTasks(task);
+                onTap: () async {
+                  //NotifyHelper().cancelNotification(task);
+                  await _taskController.deleteTasks(task);
+                  setState(() {
+                    _taskController.filterTasksByDate(_selectedDate);
+                  });
                   Get.back();
                 },
                 clr: Colors.red[300]!),
@@ -337,9 +368,9 @@ class _HomePageState extends State<HomePage> {
                   Get.back();
                 },
                 clr: primaryClr),
-            const SizedBox(
-              height: 5,
-            ),
+            // const SizedBox(
+            //   height: 5,
+            // ),
           ],
         ),
       ),
