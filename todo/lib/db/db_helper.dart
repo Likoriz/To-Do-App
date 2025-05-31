@@ -38,7 +38,6 @@ class DBHelper {
   static Future<int> insert(Task? task) async {
     print('INSERT FUNC FROM DB HELPER');
     try {
-      //print(task!.toJson());
       return await _db!.insert(_tableName, task!.toJson());
     } catch (e) {
       print('ERROR WHILE INSERTING INTO DB: $e');

@@ -85,7 +85,7 @@ class _HomePageState extends State<HomePage> {
               size: 24, color: Get.isDarkMode ? Colors.white : darkGreyClr),
           onPressed: () async {
             //notifyHelper.cancelAllNotifications();
-            await _taskController.deleteAllTasks();
+            await _taskController.deleteTasksByDate();
             setState(() {
               _taskController.filterTasksByDate(_selectedDate);
             });
@@ -95,7 +95,6 @@ class _HomePageState extends State<HomePage> {
           icon: Icon(Icons.refresh_outlined,
               size: 24, color: Get.isDarkMode ? Colors.white : darkGreyClr),
           onPressed: () {
-            //notifyHelper.cancelAllNotifications();
             _taskController.syncFromGoogleCalendar().then((_) {
               setState(() {
                 _taskController.filterTasksByDate(_selectedDate);

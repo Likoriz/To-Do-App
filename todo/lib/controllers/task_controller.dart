@@ -31,22 +31,22 @@ class TaskController extends GetxController {
 
   // void filterTasksByDate(DateTime selectedDate) {
   //   final dateString = DateFormat('yyyy-MM-dd').format(selectedDate);
-
+//
   //   taskList.assignAll(allTasksList.where((task) {
   //     if (task.date == dateString) return true;
-
+//
   //     if (task.repeat == 'Daily') return true;
-
+//
   //     if (task.repeat == 'Weekly') {
   //       final taskDate = DateTime.parse(task.date!);
   //       return taskDate.weekday == selectedDate.weekday;
   //     }
-
+//
   //     if (task.repeat == 'Monthly') {
   //       final taskDate = DateTime.parse(task.date!);
   //       return taskDate.day == selectedDate.day;
   //     }
-
+//
   //     return false;
   //   }).toList());
   // }
@@ -55,6 +55,15 @@ class TaskController extends GetxController {
     await calendarHelper.delete(task);
 
     await DBHelper.delete(task);
+    await getTasks();
+  }
+
+  Future<void> deleteTasksByDate() async {
+    for (var task in taskList) {
+      await calendarHelper.delete(task);
+      await DBHelper.delete(task);
+    }
+
     await getTasks();
   }
 
