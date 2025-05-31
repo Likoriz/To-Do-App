@@ -14,6 +14,7 @@ class Task {
   String? repeat;
 
   String? eventId;
+  String? recurringEventId;
 
   Task(
       {this.id,
@@ -26,7 +27,8 @@ class Task {
       this.color,
       this.remind,
       this.repeat,
-      this.eventId});
+      this.eventId,
+      this.recurringEventId});
 
   Map<String, dynamic> toJson() {
     return {
@@ -40,7 +42,8 @@ class Task {
       'color': color,
       'remind': remind,
       'repeat': repeat,
-      'eventId': eventId
+      'eventId': eventId,
+      'recurringEventId': recurringEventId
     };
   }
 
@@ -56,6 +59,7 @@ class Task {
     remind = json['remind'];
     repeat = json['repeat'];
     eventId = json['eventId']?.toString();
+    recurringEventId = json['recurringEventId'];
   }
 
   factory Task.fromGoogleEvent(calendar.Event event) {
@@ -83,11 +87,12 @@ class Task {
         eventId: event.id,
         color: event.colorId != null ? int.tryParse(event.colorId!) : null,
         isCompleted: 0,
+        recurringEventId: event.recurringEventId,
         repeat: getRepeat(repeatRule));
   }
 
   calendar.Event toGoogleEvent() {
-    final dateTimeFormat = DateFormat('yyyy-MM-dd hh:mm');
+    final dateTimeFormat = DateFormat('yyyy-MM-dd HH:mm');
 
     final startDateTime = date != null && startTime != null
         ? dateTimeFormat.parse('$date $startTime')

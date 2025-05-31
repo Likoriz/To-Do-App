@@ -286,7 +286,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
         ),
       );
       print('Value: $value');
-      _taskController.getTasks();
+      await _taskController.getTasks();
     } catch (e) {
       print('ERROR WHILE ADDING TASKS TO DB: $e');
     }

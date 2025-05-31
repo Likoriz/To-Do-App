@@ -30,14 +30,20 @@ class GoogleCalendarHelper {
           calendarId.trim(),
           event.id!,
           timeMin: DateTime.now().subtract(const Duration(days: 30)).toUtc(),
-          timeMax: DateTime.now().add(const Duration(days: 90)).toUtc(),
+          timeMax: DateTime.now().add(const Duration(days: 60)).toUtc(),
         );
 
         for (var instance in instances.items!) {
-          allTasks.add(Task.fromGoogleEvent(instance));
+          final task = Task.fromGoogleEvent(instance);
+          task.repeat = Task.getRepeat(event.recurrence!.first);
+
+          task.recurringEventId = instance.recurringEventId;
+
+          allTasks.add(task);
         }
       } else {
-        allTasks.add(Task.fromGoogleEvent(event));
+        final task = Task.fromGoogleEvent(event);
+        allTasks.add(task);
       }
     }
 
@@ -51,8 +57,10 @@ class GoogleCalendarHelper {
   }
 
   Future<void> delete(Task task) async {
-    if (task.eventId != null)
-      await _api.events.delete(calendarId.trim(), task.eventId!);
+    final String? targetId = task.recurringEventId ?? task.eventId;
+    if (targetId == null) return;
+
+    await _api.events.delete(calendarId.trim(), targetId);
   }
 
   Future<void> update(int id) async {}

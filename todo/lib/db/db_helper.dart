@@ -25,6 +25,7 @@ class DBHelper {
             'title STRING, note TEXT, date STRING, '
             'startTime STRING, endTime STRING, '
             'remind INTEGER, repeat STRING, '
+            'recurringEventId TEXT, '
             'color INTEGER, '
             'eventId TEXT, '
             'isCompleted INTEGER)');
