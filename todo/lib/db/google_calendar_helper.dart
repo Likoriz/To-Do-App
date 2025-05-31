@@ -29,7 +29,7 @@ class GoogleCalendarHelper {
         final instances = await _api.events.instances(
           calendarId.trim(),
           event.id!,
-          timeMin: DateTime.now().subtract(const Duration(days: 30)).toUtc(),
+          timeMin: DateTime.now().toUtc(),
           timeMax: DateTime.now().add(const Duration(days: 60)).toUtc(),
         );
 
@@ -43,7 +43,13 @@ class GoogleCalendarHelper {
         }
       } else {
         final task = Task.fromGoogleEvent(event);
-        allTasks.add(task);
+        final taskDate = DateTime.parse(task.date.toString());
+        final today = DateTime(
+            DateTime.now().year, DateTime.now().month, DateTime.now().day);
+
+        if (!taskDate.isBefore(today)) {
+          allTasks.add(task);
+        }
       }
     }
 
