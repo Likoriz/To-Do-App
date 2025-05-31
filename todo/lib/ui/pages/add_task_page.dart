@@ -226,7 +226,9 @@ class _AddTaskPageState extends State<AddTaskPage> {
   }
 
   _validateData() {
-    if (_titleController.text.isNotEmpty && _noteController.text.isNotEmpty) {
+    if (_titleController.text.isNotEmpty &&
+        _noteController.text.isNotEmpty &&
+        isValidTimeRange(_startTime, _endTime)) {
       _addTasksToDb();
       Get.back();
     } else if (_titleController.text.isEmpty) {
@@ -238,14 +240,34 @@ class _AddTaskPageState extends State<AddTaskPage> {
             Icons.warning_amber_rounded,
             color: Colors.red,
           ));
-    } else if (_noteController.text.isEmpty) {
+    } else if (_noteController.text.isEmpty &&
+        isValidTimeRange(_startTime, _endTime)) {
       _noteController.text.val('');
       _addTasksToDb();
       Get.back();
+    } else if (!isValidTimeRange(_startTime, _endTime)) {
+      Get.snackbar('required', 'Correct time range is required!',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.white,
+          colorText: pinkClr,
+          icon: const Icon(
+            Icons.warning_amber_rounded,
+            color: Colors.red,
+          ));
     } else {
       print(
           '############################ SOMETHING WRONG HAPPENED #############################');
     }
+  }
+
+  bool isValidTimeRange(String startTime_, String endTime_) {
+    final format = DateFormat('HH:mm');
+    final startTime = format.parse(startTime_);
+    final endTime = format.parse(endTime_);
+
+    print(endTime.isAfter(startTime));
+
+    return endTime.isAfter(startTime);
   }
 
   _addTasksToDb() async {
@@ -329,7 +351,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
     }
   }
 
-  _getTimeFromUser({required bool isStartTime}) async {
+  Future<void> _getTimeFromUser({required bool isStartTime}) async {
     TimeOfDay? pickedTime = await showTimePicker(
       initialEntryMode: TimePickerEntryMode.input,
       context: context,
@@ -339,19 +361,20 @@ class _AddTaskPageState extends State<AddTaskPage> {
               DateTime.now().add(const Duration(minutes: 15))),
     );
 
-    String formattedTime;
+    if (pickedTime != null) {
+      final dt = DateTime(0, 1, 1, pickedTime.hour, pickedTime.minute);
+      final formattedTime = DateFormat('HH:mm').format(dt);
 
-    isStartTime ? formattedTime = _startTime : formattedTime = _endTime;
+      setState(() {
+        if (isStartTime) {
+          _startTime = formattedTime;
+        } else {
+          _endTime = formattedTime;
+        }
+      });
 
-    // ignore: use_build_context_synchronously
-    if (pickedTime != null) formattedTime = pickedTime.format(context);
-
-    if (isStartTime) {
-      setState(() => _startTime = formattedTime);
-    } else if (!isStartTime) {
-      setState(() => _endTime = formattedTime);
-    } else {
-      print('Something went wrong !');
+      print(_startTime);
+      print(_endTime);
     }
   }
 }
