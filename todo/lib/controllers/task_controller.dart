@@ -50,10 +50,11 @@ class TaskController extends GetxController {
     await getTasks();
   }
 
-  Future<void> markTaskAsCompleted(int id) async {
-    await calendarHelper.update(id);
+  Future<void> markTaskAsCompleted(Task task) async {
+    task.isCompleted = 1;
 
-    await DBHelper.update(id);
+    await DBHelper.mark(task.id!);
+
     await getTasks();
   }
 
@@ -90,8 +91,28 @@ class TaskController extends GetxController {
   }
 
   Future<void> updateTask(Task task) async {
-    // if (task.recurringEventId == null) {
-    //   await DBHelper.update(task.id!.toInt());
-    // }
+    await calendarHelper.update(task);
+    await DBHelper.update(task);
+
+    for (int i = 0; i < allTasksList.length; i++) {
+      if (allTasksList[i].eventId == task.eventId) {
+        allTasksList[i] = Task(
+          id: allTasksList[i].id,
+          title: task.title,
+          note: task.note,
+          date: task.date,
+          startTime: task.startTime,
+          endTime: task.endTime,
+          remind: task.remind,
+          repeat: task.repeat,
+          color: task.color,
+          isCompleted: task.isCompleted,
+          eventId: task.eventId,
+          recurringEventId: task.recurringEventId,
+        );
+      }
+    }
+
+    allTasksList.refresh();
   }
 }

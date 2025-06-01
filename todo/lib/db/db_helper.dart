@@ -16,6 +16,7 @@ class DBHelper {
     try {
       String path = '${await getDatabasesPath()}task.db';
       debugPrint('in db path');
+
       _db = await openDatabase(path, version: _version,
           onCreate: (Database db, int version) async {
         debugPrint('Creating new one');
@@ -37,17 +38,14 @@ class DBHelper {
   }
 
   static Future<int> insert(Task? task) async {
-    print('INSERT FUNC FROM DB HELPER');
     try {
       return await _db!.insert(_tableName, task!.toJson());
     } catch (e) {
-      print('ERROR WHILE INSERTING INTO DB: $e');
       return 9000;
     }
   }
 
   static Future<int> delete(Task task) async {
-    print('DELETE FUNC FROM DBHELPER');
     return await _db!.delete(
       _tableName,
       where: 'id = ?',
@@ -56,16 +54,37 @@ class DBHelper {
   }
 
   static Future<int> deleteAll() async {
-    print('DELETEALL FUNC FROM DBHELPER');
     return await _db!.delete(_tableName);
   }
 
   static Future<List<Map<String, dynamic>>> query() async {
-    print('QUERY FUNC FROM DBHELPER');
     return await _db!.query(_tableName);
   }
 
-  static Future<int> update(int id) async {
+  static Future<int> update(Task task) async {
+    return await _db!.update(
+      _tableName,
+      task.toJson(),
+      where: 'eventId = ?',
+      whereArgs: [task.eventId],
+    );
+  }
+
+  static Future<Task?> getTaskById(int id) async {
+    final db = _db!;
+    final maps = await db.query(
+      _tableName,
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+
+    if (maps.isNotEmpty) {
+      return Task.fromJson(maps.first);
+    }
+    return null;
+  }
+
+  static Future<int> mark(int id) async {
     print('UPDATE FUNC FROM DBHELPER');
     return await _db!.rawUpdate('''
     UPDATE tasks

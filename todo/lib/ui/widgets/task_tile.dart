@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:todo/ui/pages/edit_task_page.dart';
 import 'package:todo/ui/size_config.dart';
 import 'package:todo/ui/theme.dart';
 import '../../models/task.dart';
@@ -48,8 +50,8 @@ class TaskTile extends StatelessWidget {
                           ),
                         ),
                         IconButton(
-                          onPressed: () {
-                            print('Редактировать задачу: ${task.title}');
+                          onPressed: () async {
+                            await Get.to(() => EditTaskPage(task));
                           },
                           icon: const Icon(Icons.edit,
                               color: Colors.white, size: 20),

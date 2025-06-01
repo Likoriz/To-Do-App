@@ -1,3 +1,4 @@
+import 'package:todo/db/db_helper.dart';
 import 'package:todo/models/task.dart';
 import 'package:googleapis/calendar/v3.dart' as calendar;
 
@@ -61,5 +62,56 @@ class GoogleCalendarHelper {
     await _api.events.delete(calendarId.trim(), targetId);
   }
 
-  Future<void> update(int id) async {}
+  Future<void> update(Task task) async {
+    final originalTask = await DBHelper.getTaskById(task.id!);
+
+    if (originalTask == null) {
+      print('Original task not found. Aborting update.');
+      return;
+    }
+
+    await delete(originalTask);
+
+    calendar.Event newEvent = calendar.Event()
+      ..summary = task.title
+      ..description = task.note
+      ..colorId = task.color.toString()
+      ..start = calendar.EventDateTime(
+        dateTime: _combineDateAndTime(task.date, task.startTime)?.toUtc(),
+        timeZone: 'UTC',
+      )
+      ..end = calendar.EventDateTime(
+        dateTime: _combineDateAndTime(task.date, task.endTime)?.toUtc(),
+        timeZone: 'UTC',
+      );
+
+    final isRecurring = task.repeat != null && task.repeat != 'None';
+    if (isRecurring) {
+      final rule = task.getRecurrenceRule();
+      if (rule != null) {
+        newEvent.recurrence = [rule];
+      }
+    }
+
+    final inserted = await _api.events.insert(newEvent, calendarId.trim());
+
+    task.eventId = inserted.id;
+    task.recurringEventId = inserted.recurringEventId;
+    await DBHelper.update(task);
+  }
+
+  DateTime? _combineDateAndTime(String? date, String? time) {
+    if (date == null || time == null) return null;
+    try {
+      final datePart = DateTime.parse(date);
+      final timeParts = time.split(':');
+      final hour = int.parse(timeParts[0]);
+      final minute = int.parse(timeParts[1]);
+      return DateTime(
+          datePart.year, datePart.month, datePart.day, hour, minute);
+    } catch (e) {
+      print('Error while parsing date and time: $e');
+      return null;
+    }
+  }
 }

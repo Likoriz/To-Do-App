@@ -48,9 +48,6 @@ class _HomePageState extends State<HomePage> {
       appBar: _customAppBar(),
       body: Column(
         children: [
-          // Container(
-          //     child: SizedBox(height: 200, width: 200),
-          //     color: Color.fromRGBO(255, 0, 0, 1)),
           _addTaskBar(),
           _addDateBar(),
           const SizedBox(
@@ -332,7 +329,7 @@ class _HomePageState extends State<HomePage> {
                     label: 'Task Completed',
                     onTap: () async {
                       //NotifyHelper().cancelNotification(task);
-                      await _taskController.markTaskAsCompleted(task.id!);
+                      await _taskController.markTaskAsCompleted(task);
                       _taskController.filterTasksByDate(_selectedDate);
                       Get.back();
                     },
