@@ -83,10 +83,8 @@ class _HomePageState extends State<HomePage> {
           onPressed: () async {
             //notifyHelper.cancelAllNotifications();
             await _taskController.deleteTasksByDate();
-            setState(() {
-              _taskController.syncFromGoogleCalendar();
-              _taskController.filterTasksByDate(_selectedDate);
-            });
+            _taskController.syncFromGoogleCalendar();
+            _taskController.filterTasksByDate(_selectedDate);
           },
         ),
         IconButton(
@@ -94,9 +92,7 @@ class _HomePageState extends State<HomePage> {
               size: 24, color: Get.isDarkMode ? Colors.white : darkGreyClr),
           onPressed: () async {
             await _taskController.syncFromGoogleCalendar().then((_) {
-              setState(() {
-                _taskController.filterTasksByDate(_selectedDate);
-              });
+              _taskController.filterTasksByDate(_selectedDate);
             });
           },
         ),
@@ -136,9 +132,7 @@ class _HomePageState extends State<HomePage> {
               onTap: () async {
                 await Get.to(() => const AddTaskPage());
                 await _taskController.syncFromGoogleCalendar();
-                setState(() {
-                  _taskController.filterTasksByDate(_selectedDate);
-                });
+                _taskController.filterTasksByDate(_selectedDate);
               }),
         ],
       ),
@@ -340,9 +334,7 @@ class _HomePageState extends State<HomePage> {
                   //NotifyHelper().cancelNotification(task);
                   await _taskController.deleteTasks(task);
                   await _taskController.syncFromGoogleCalendar();
-                  setState(() {
-                    _taskController.filterTasksByDate(_selectedDate);
-                  });
+                  _taskController.filterTasksByDate(_selectedDate);
                   Get.back();
                 },
                 clr: Colors.red[300]!),

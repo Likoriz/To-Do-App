@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:todo/controllers/task_controller.dart';
 import 'package:todo/ui/pages/edit_task_page.dart';
 import 'package:todo/ui/size_config.dart';
 import 'package:todo/ui/theme.dart';
 import '../../models/task.dart';
 
 class TaskTile extends StatelessWidget {
-  const TaskTile(this.task, {Key? key}) : super(key: key);
+  TaskTile(this.task, {Key? key}) : super(key: key);
 
   final Task task;
+
+  final DateTime _selectedDate = DateTime.now();
+  final TaskController _taskController = Get.find<TaskController>();
 
   @override
   Widget build(BuildContext context) {
@@ -52,6 +56,8 @@ class TaskTile extends StatelessWidget {
                         IconButton(
                           onPressed: () async {
                             await Get.to(() => EditTaskPage(task));
+                            await _taskController.syncFromGoogleCalendar();
+                            _taskController.filterTasksByDate(_selectedDate);
                           },
                           icon: const Icon(Icons.edit,
                               color: Colors.white, size: 20),
